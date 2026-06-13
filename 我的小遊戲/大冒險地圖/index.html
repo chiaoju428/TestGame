@@ -393,6 +393,236 @@
       font-weight: 900;
     }
 
+    .ending {
+      display: none;
+      cursor: pointer;
+    }
+
+    .ending.show {
+      display: block;
+    }
+
+    .ending-title {
+      margin: 0 0 14px;
+      color: var(--gold);
+      font-size: clamp(1.8rem, 5vw, 3.2rem);
+      letter-spacing: 0;
+      text-align: center;
+      text-shadow: 0 4px 0 rgba(0, 0, 0, 0.24);
+    }
+
+    .story-card {
+      min-height: min(48vh, 390px);
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+      border: 3px solid rgba(255, 213, 106, 0.42);
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 50% 18%, rgba(255, 244, 174, 0.46), transparent 12rem),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.05) 0 3px, transparent 3px 18px),
+        linear-gradient(180deg, #9bd7ff 0%, #f8df9f 46%, #7bcf7d 47%, #4fa85e 100%);
+      box-shadow: inset 0 0 0 5px rgba(255, 255, 255, 0.08), 0 18px 44px rgba(0, 0, 0, 0.28);
+    }
+
+    .story-card.scene-2 {
+      background:
+        radial-gradient(circle at 50% 42%, rgba(255, 232, 130, 0.82), transparent 16rem),
+        linear-gradient(180deg, #8ccfff 0%, #fee1a1 48%, #80cc72 49%, #4d9c5c 100%);
+    }
+
+    .story-card.scene-3 {
+      background:
+        radial-gradient(circle at 50% 38%, rgba(255, 231, 145, 0.62), transparent 13rem),
+        linear-gradient(180deg, #86c8f0 0%, #f1d59b 50%, #6dbb73 51%, #3f8550 100%);
+    }
+
+    .story-card.scene-4 {
+      background:
+        radial-gradient(circle at 70% 24%, rgba(255, 243, 173, 0.72), transparent 14rem),
+        linear-gradient(180deg, #9bddff 0%, #cfeaff 42%, #a7d992 43%, #6fbf75 100%);
+    }
+
+    .scene-art {
+      width: 100%;
+      min-height: 330px;
+      position: relative;
+    }
+
+    .story-image {
+      width: 100%;
+      height: min(48vh, 420px);
+      object-fit: contain;
+      display: block;
+      border-radius: 14px;
+    }
+
+    .sun {
+      position: absolute;
+      right: 10%;
+      top: 10%;
+      width: 86px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: #ffe991;
+      box-shadow: 0 0 60px rgba(255, 223, 104, 0.72);
+    }
+
+    .storybook-gate {
+      position: absolute;
+      left: 50%;
+      bottom: 14%;
+      width: min(260px, 42%);
+      height: 210px;
+      translate: -50% 0;
+      border: 10px solid #d7bd86;
+      border-bottom: 0;
+      border-radius: 100px 100px 12px 12px;
+      background: linear-gradient(90deg, #8d552f, #c47b3d 45%, #8b4e2d);
+      box-shadow: 0 14px 0 rgba(97, 58, 30, 0.25);
+    }
+
+    .storybook-gate.open {
+      background:
+        radial-gradient(circle at 50% 45%, rgba(255, 239, 142, 0.95), transparent 42%),
+        linear-gradient(90deg, #7e4528 0 28%, #fff0a8 29% 71%, #7e4528 72% 100%);
+    }
+
+    .slot-glow {
+      position: absolute;
+      top: 24px;
+      width: 54px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #fff2bb;
+      border: 5px solid rgba(116, 75, 32, 0.28);
+      box-shadow: 0 0 28px rgba(255, 236, 142, 0.76);
+      color: #8d552f;
+      font-size: 1.6rem;
+    }
+
+    .slot-glow:nth-child(1) {
+      left: 22px;
+    }
+
+    .slot-glow:nth-child(2) {
+      left: calc(50% - 27px);
+    }
+
+    .slot-glow:nth-child(3) {
+      right: 22px;
+    }
+
+    .story-path {
+      position: absolute;
+      bottom: 0;
+      left: 12%;
+      width: 76%;
+      height: 86px;
+      border-radius: 50% 50% 0 0;
+      background: repeating-radial-gradient(ellipse at 50% 100%, #d0a767 0 12px, #ead09a 13px 24px);
+      opacity: 0.72;
+    }
+
+    .story-object {
+      position: absolute;
+      font-size: clamp(2.5rem, 7vw, 5rem);
+      filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.18));
+    }
+
+    .obj-left {
+      left: 14%;
+      bottom: 28%;
+    }
+
+    .obj-right {
+      right: 13%;
+      bottom: 28%;
+    }
+
+    .obj-bottom {
+      left: 50%;
+      bottom: 4%;
+      translate: -50% 0;
+    }
+
+    .new-islands {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 26% 38%, #76c879 0 9%, transparent 10%),
+        radial-gradient(ellipse at 63% 30%, #84cf88 0 12%, transparent 13%),
+        radial-gradient(ellipse at 82% 48%, #78c47e 0 8%, transparent 9%);
+    }
+
+    .adventure-book {
+      position: absolute;
+      left: 50%;
+      bottom: 10%;
+      width: min(380px, 70%);
+      height: 140px;
+      translate: -50% 0;
+      border-radius: 18px;
+      background:
+        linear-gradient(90deg, #fff1c3 0 49%, #d5b26c 50%, #fff1c3 51% 100%);
+      border: 6px solid #c58b4c;
+      box-shadow: 0 15px 24px rgba(89, 58, 27, 0.22);
+    }
+
+    .book-seal {
+      position: absolute;
+      top: 48px;
+      width: 38px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: rgba(177, 54, 46, 0.22);
+      border: 3px solid rgba(177, 54, 46, 0.38);
+    }
+
+    .book-seal:nth-child(1) {
+      left: 28%;
+    }
+
+    .book-seal:nth-child(2) {
+      left: 46%;
+    }
+
+    .book-seal:nth-child(3) {
+      left: 64%;
+    }
+
+    .story-text {
+      margin: 16px auto 0;
+      max-width: 680px;
+      color: #fff6cf;
+      font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+      font-weight: 900;
+      line-height: 1.75;
+      text-align: center;
+    }
+
+    .story-next {
+      display: block;
+      margin: 16px auto 0;
+      padding: 10px 18px;
+      border: 0;
+      border-radius: 999px;
+      color: #241707;
+      background: linear-gradient(180deg, #fff1b4, var(--gold));
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .story-count {
+      margin-top: 10px;
+      color: var(--muted);
+      text-align: center;
+      font-weight: 800;
+    }
+
     .door-btn {
       padding: 14px 24px;
       color: #241707;
@@ -467,6 +697,16 @@
         </div>
       </div>
 
+      <div class="ending" id="endingView">
+        <h2 class="ending-title">三印啟門</h2>
+        <div class="story-card" id="storyCard">
+          <div class="scene-art" id="storyArt"></div>
+        </div>
+        <p class="story-text" id="storyText"></p>
+        <button class="story-next" id="storyNextBtn" type="button">下一頁</button>
+        <div class="story-count" id="storyCount">1 / 4</div>
+      </div>
+
       <div class="complete" id="completeView">
         <h2>🏆 冒險完成！</h2>
         <p id="timeText">總冒險時長：0 分 00 秒</p>
@@ -492,11 +732,41 @@
     const badgesEl = document.querySelector("#badges");
     const completeView = document.querySelector("#completeView");
     const doorPuzzle = document.querySelector("#doorPuzzle");
+    const endingView = document.querySelector("#endingView");
+    const storyCard = document.querySelector("#storyCard");
+    const storyArt = document.querySelector("#storyArt");
+    const storyText = document.querySelector("#storyText");
+    const storyNextBtn = document.querySelector("#storyNextBtn");
+    const storyCount = document.querySelector("#storyCount");
     const timeText = document.querySelector("#timeText");
     const againBtn = document.querySelector("#againBtn");
 
     let placed = {};
     let dragState = null;
+    let endingIndex = 0;
+
+    const ENDING_SCENES = [
+      {
+        className: "scene-1",
+        text: "三枚小小的印，帶著三段旅程的光，終於回到了門上。",
+        art: `<img class="story-image" src="三枚印章歸位.png" alt="三枚印章歸位">`
+      },
+      {
+        className: "scene-2",
+        text: "門後沒有終點，只有一頁還沒寫完的地圖。",
+        art: `<img class="story-image" src="門後的光.png" alt="門後的光">`
+      },
+      {
+        className: "scene-3",
+        text: "原來答案不是鑰匙，願意再試一次，才是。",
+        art: `<img class="story-image" src="同行者的回望.png" alt="同行者的回望">`
+      },
+      {
+        className: "scene-4",
+        text: "今天的冒險收進書裡，明天的路，會從你翻開的地方開始。",
+        art: `<img class="story-image" src="新的地圖.png" alt="新的地圖">`
+      }
+    ];
 
     function ensureStartTime() {
       if (!localStorage.getItem("adventure_start")) {
@@ -541,6 +811,7 @@
     function openDoor() {
       placed = {};
       completeView.classList.remove("show");
+      endingView.classList.remove("show");
       doorPuzzle.style.display = "";
       doorOverlay.classList.add("show");
       renderDoorPuzzle();
@@ -704,7 +975,7 @@
       slot.appendChild(badge);
 
       if (Object.keys(placed).length === LEVELS.length) {
-        setTimeout(showComplete, 420);
+        setTimeout(startEnding, 420);
       }
     }
 
@@ -715,7 +986,37 @@
       setTimeout(() => slot.classList.remove("wrong"), 300);
     }
 
+    function startEnding() {
+      endingIndex = 0;
+      doorPuzzle.style.display = "none";
+      completeView.classList.remove("show");
+      endingView.classList.add("show");
+      renderEndingScene();
+    }
+
+    function renderEndingScene() {
+      const scene = ENDING_SCENES[endingIndex];
+      storyCard.className = `story-card ${scene.className}`;
+      storyArt.innerHTML = scene.art;
+      storyText.textContent = scene.text;
+      storyCount.textContent = `${endingIndex + 1} / ${ENDING_SCENES.length}`;
+      storyNextBtn.textContent = endingIndex === ENDING_SCENES.length - 1 ? "冒險完成" : "下一頁";
+    }
+
+    function nextEndingScene() {
+      if (!endingView.classList.contains("show")) return;
+
+      if (endingIndex === ENDING_SCENES.length - 1) {
+        showComplete();
+        return;
+      }
+
+      endingIndex += 1;
+      renderEndingScene();
+    }
+
     function showComplete() {
+      endingView.classList.remove("show");
       doorPuzzle.style.display = "none";
       timeText.textContent = `總冒險時長：${formatDuration(Date.now() - Number(localStorage.getItem("adventure_start") || Date.now()))}`;
       completeView.classList.add("show");
@@ -749,6 +1050,11 @@
     clearBtn.addEventListener("click", clearProgress);
     gateHotspot.addEventListener("click", openDoor);
     closeDoorBtn.addEventListener("click", closeDoor);
+    endingView.addEventListener("click", nextEndingScene);
+    storyNextBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      nextEndingScene();
+    });
     againBtn.addEventListener("click", restartAdventure);
     doorOverlay.addEventListener("click", (event) => {
       if (event.target === doorOverlay) closeDoor();
