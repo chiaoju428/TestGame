@@ -1,0 +1,865 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>打地鼠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f8edd4;
+      --paper-deep: #efd8ad;
+      --ink: #4a3425;
+      --muted: #80634e;
+      --leaf: #86b96f;
+      --leaf-dark: #5c884a;
+      --wood: #9a633b;
+      --wood-dark: #5d351f;
+      --wood-light: #c58a54;
+      --red: #e64b45;
+      --gold: #f3a83a;
+      --cream: #fff9e9;
+      --shadow: rgba(88, 54, 25, 0.22);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 18px 0;
+      background:
+        radial-gradient(circle at 16% 16%, rgba(255, 255, 255, 0.7), transparent 9rem),
+        radial-gradient(circle at 82% 10%, rgba(255, 246, 216, 0.9), transparent 10rem),
+        repeating-linear-gradient(0deg, rgba(126, 91, 50, 0.05) 0 2px, transparent 2px 18px),
+        linear-gradient(180deg, #f7e7c4 0%, var(--paper) 46%, #b8d995 46%, #88bd70 100%);
+      color: var(--ink);
+      font-family: "Kosugi Maru", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif;
+      overflow-x: hidden;
+    }
+
+    body.shake {
+      animation: screenShake 0.24s ease;
+    }
+
+    .game {
+      position: relative;
+      width: min(760px, calc(100vw - 28px));
+      padding: clamp(16px, 3vw, 26px);
+      border: 5px solid rgba(255, 255, 255, 0.78);
+      border-radius: 30px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.55), rgba(255, 249, 233, 0.34)),
+        var(--cream);
+      box-shadow: 0 24px 65px var(--shadow), inset 0 0 0 2px rgba(155, 111, 63, 0.09);
+      overflow: hidden;
+    }
+
+    .game::before,
+    .game::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      background: rgba(243, 168, 58, 0.16);
+      pointer-events: none;
+    }
+
+    .game::before {
+      width: 140px;
+      height: 140px;
+      right: -42px;
+      top: -50px;
+    }
+
+    .game::after {
+      width: 90px;
+      height: 90px;
+      left: -28px;
+      bottom: 30px;
+    }
+
+    header {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.25rem, 6vw, 3.8rem);
+      line-height: 1;
+      letter-spacing: 0;
+      color: #6e4025;
+      text-shadow: 0 4px 0 #fff5d9, 0 7px 0 rgba(123, 75, 38, 0.14);
+    }
+
+    .stats {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .stat {
+      min-width: 108px;
+      padding: 9px 13px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 3px solid rgba(154, 99, 59, 0.18);
+      box-shadow: 0 6px 0 rgba(119, 76, 43, 0.13);
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.45rem;
+      line-height: 1.06;
+      color: #543321;
+    }
+
+    .timer.danger {
+      color: var(--red);
+      animation: timerBlink 0.45s steps(2, end) infinite;
+    }
+
+    .toolbar {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .message {
+      min-height: 32px;
+      color: #6d513c;
+      font-weight: 800;
+    }
+
+    .combo {
+      position: absolute;
+      left: 50%;
+      top: 106px;
+      translate: -50% 0;
+      z-index: 8;
+      padding: 8px 18px;
+      border-radius: 999px;
+      background: #fff3c8;
+      border: 3px solid #f3a83a;
+      color: #d75138;
+      font-size: clamp(1.2rem, 3.5vw, 2rem);
+      font-weight: 900;
+      text-shadow: 0 2px 0 #fff;
+      box-shadow: 0 9px 22px rgba(132, 75, 23, 0.18);
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.82);
+    }
+
+    .combo.show {
+      animation: comboPop 0.72s ease;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 900;
+      color: #fff;
+      background: linear-gradient(180deg, #ffbe63, var(--gold));
+      border-radius: 19px;
+      padding: 10px 18px;
+      box-shadow: 0 6px 0 #b96b22, 0 12px 26px rgba(185, 107, 34, 0.24);
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 0 #b96b22, 0 16px 30px rgba(185, 107, 34, 0.25);
+    }
+
+    button:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #b96b22, 0 8px 18px rgba(185, 107, 34, 0.2);
+    }
+
+    button:disabled {
+      cursor: default;
+      opacity: 0.72;
+    }
+
+    .board {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(14px, 3vw, 24px);
+      padding: clamp(16px, 3vw, 26px);
+      border-radius: 26px;
+      background:
+        radial-gradient(circle at 14% 20%, rgba(255, 255, 255, 0.25), transparent 8rem),
+        repeating-linear-gradient(110deg, rgba(255, 255, 255, 0.12) 0 8px, transparent 8px 18px),
+        var(--leaf);
+      border: 4px solid rgba(91, 136, 73, 0.48);
+      box-shadow: inset 0 8px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .hole {
+      position: relative;
+      aspect-ratio: 1 / 0.82;
+      border: 0;
+      border-radius: 50%;
+      background:
+        radial-gradient(ellipse at 50% 58%, #2f1b12 0 31%, transparent 32%),
+        repeating-radial-gradient(ellipse at 50% 55%, transparent 0 9px, rgba(77, 43, 25, 0.2) 10px 12px),
+        radial-gradient(ellipse at 50% 55%, var(--wood-light) 0 38%, var(--wood) 39% 68%, var(--wood-dark) 69% 100%);
+      box-shadow:
+        inset 0 12px 20px rgba(58, 32, 18, 0.36),
+        0 8px 0 var(--leaf-dark),
+        0 16px 22px rgba(81, 96, 48, 0.2);
+      overflow: hidden;
+      touch-action: manipulation;
+    }
+
+    .hole::before {
+      content: "";
+      position: absolute;
+      inset: 12% 9% 18%;
+      border-radius: 50%;
+      border-top: 5px solid rgba(255, 229, 177, 0.34);
+      border-left: 3px solid rgba(255, 229, 177, 0.18);
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .hole::after {
+      content: "";
+      position: absolute;
+      left: 10%;
+      right: 10%;
+      bottom: 7%;
+      height: 28%;
+      border-radius: 50%;
+      background: rgba(33, 19, 11, 0.45);
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .mole {
+      position: absolute;
+      left: 50%;
+      bottom: -70%;
+      width: 72%;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      translate: -50% 0;
+      font-size: clamp(2.7rem, 10vw, 5.35rem);
+      filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.22));
+      transition: bottom 0.2s cubic-bezier(.2, .9, .25, 1.2), rotate 0.16s ease, scale 0.16s ease;
+      user-select: none;
+      z-index: 4;
+      pointer-events: none;
+      transform-origin: 50% 70%;
+    }
+
+    .hole.up .mole {
+      bottom: 18%;
+      animation: bounceOut 0.48s cubic-bezier(.12, .9, .22, 1.28);
+    }
+
+    .hole.hit .mole {
+      opacity: 0;
+      scale: 0.82;
+    }
+
+    .pop {
+      position: absolute;
+      inset: auto 0 16%;
+      margin: auto;
+      width: fit-content;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #fffaf0;
+      border: 2px solid rgba(243, 168, 58, 0.42);
+      color: #249052;
+      font-size: clamp(1rem, 3vw, 1.4rem);
+      font-weight: 900;
+      opacity: 0;
+      transform: translateY(0);
+      z-index: 7;
+      pointer-events: none;
+      box-shadow: 0 7px 12px rgba(70, 41, 19, 0.16);
+    }
+
+    .pop.bad {
+      color: var(--red);
+      border-color: rgba(230, 75, 69, 0.32);
+    }
+
+    .hole.show-score .pop {
+      animation: scorePop 0.55s ease;
+    }
+
+    .hole.miss-flash {
+      animation: miss 0.28s ease;
+    }
+
+    .particle,
+    .spark {
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 30;
+      pointer-events: none;
+    }
+
+    .particle {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--gold);
+      animation: particleFly 650ms ease-out forwards;
+    }
+
+    .spark {
+      font-size: 1.2rem;
+      animation: sparkFly 850ms ease-out forwards;
+    }
+
+    .flying-mole {
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 32;
+      pointer-events: none;
+      font-size: clamp(2.8rem, 9vw, 5rem);
+      filter: drop-shadow(0 12px 10px rgba(0, 0, 0, 0.24));
+      animation: moleFly 720ms cubic-bezier(.08, .78, .3, 1) forwards;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      padding: 20px;
+      background: rgba(58, 38, 21, 0.54);
+      z-index: 40;
+    }
+
+    .overlay.show {
+      display: grid;
+    }
+
+    .dialog {
+      width: min(430px, 100%);
+      padding: 30px;
+      text-align: center;
+      border-radius: 28px;
+      background:
+        repeating-linear-gradient(0deg, rgba(128, 99, 78, 0.05) 0 2px, transparent 2px 15px),
+        var(--cream);
+      border: 5px solid #fff;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.32);
+    }
+
+    .dialog h2 {
+      margin: 0 0 8px;
+      font-size: 2rem;
+      color: #6e4025;
+      letter-spacing: 0;
+    }
+
+    .dialog p {
+      margin: 0 0 18px;
+      color: #70523f;
+      font-size: 1.18rem;
+      font-weight: 800;
+    }
+
+    @keyframes bounceOut {
+      0% {
+        bottom: -70%;
+        scale: 0.72 1.16;
+      }
+      58% {
+        bottom: 28%;
+        scale: 1.08 0.92;
+      }
+      78% {
+        bottom: 15%;
+        scale: 0.96 1.04;
+      }
+      100% {
+        bottom: 18%;
+        scale: 1;
+      }
+    }
+
+    @keyframes scorePop {
+      0% {
+        opacity: 0;
+        transform: translateY(10px) scale(0.78);
+      }
+      35% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-38px) scale(1.18);
+      }
+    }
+
+    @keyframes comboPop {
+      0% {
+        opacity: 0;
+        transform: translateY(12px) scale(0.75) rotate(-4deg);
+      }
+      22%, 70% {
+        opacity: 1;
+        transform: translateY(0) scale(1.05) rotate(2deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-18px) scale(0.9) rotate(0deg);
+      }
+    }
+
+    @keyframes miss {
+      0%, 100% {
+        filter: none;
+      }
+      50% {
+        filter: saturate(1.35) brightness(1.06);
+        box-shadow:
+          inset 0 12px 20px rgba(58, 32, 18, 0.36),
+          0 8px 0 var(--leaf-dark),
+          0 0 0 7px rgba(230, 75, 69, 0.32);
+      }
+    }
+
+    @keyframes screenShake {
+      0%, 100% {
+        transform: translateX(0);
+      }
+      22% {
+        transform: translateX(-5px);
+      }
+      44% {
+        transform: translateX(5px);
+      }
+      66% {
+        transform: translateX(-3px);
+      }
+      82% {
+        transform: translateX(3px);
+      }
+    }
+
+    @keyframes timerBlink {
+      50% {
+        color: #fff;
+        text-shadow: 0 0 12px var(--red), 0 0 18px var(--red);
+      }
+    }
+
+    @keyframes particleFly {
+      from {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+      }
+      to {
+        opacity: 0;
+        transform: translate(var(--dx), var(--dy)) scale(0.1);
+      }
+    }
+
+    @keyframes sparkFly {
+      from {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.6) rotate(0deg);
+      }
+      to {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.2) rotate(80deg);
+      }
+    }
+
+    @keyframes moleFly {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1) rotate(0deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.55) rotate(700deg);
+      }
+    }
+
+    @media (max-width: 620px) {
+      body {
+        padding: 10px 0;
+      }
+
+      .game {
+        border-radius: 24px;
+      }
+
+      header,
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      header {
+        text-align: center;
+      }
+
+      .stats,
+      .toolbar {
+        justify-content: center;
+      }
+
+      .message {
+        text-align: center;
+      }
+
+      .combo {
+        top: 148px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="game" aria-label="打地鼠遊戲">
+    <div class="combo" id="comboText">COMBO ×3!</div>
+    <header>
+      <h1>打地鼠</h1>
+      <div class="stats">
+        <div class="stat">
+          <span>分數</span>
+          <strong id="score">0</strong>
+        </div>
+        <div class="stat">
+          <span>倒數</span>
+          <strong><span id="time" class="timer">30</span>s</strong>
+        </div>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <div class="message" id="message">按開始後，看到 🐹 就快點打！</div>
+      <button id="startBtn" type="button">開始遊戲</button>
+    </div>
+
+    <section class="board" id="board" aria-label="九個地鼠洞">
+      <button class="hole" type="button" aria-label="洞 1"><span class="mole">🐹</span><span class="pop">+10</span></button>
+      <button class="hole" type="button" aria-label="洞 2"><span class="mole">🐹</span><span class="pop">+10</span></button>
+      <button class="hole" type="button" aria-label="洞 3"><span class="mole">🐹</span><span class="pop">+10</span></button>
+      <button class="hole" type="button" aria-label="洞 4"><span class="mole">🐹</span><span class="pop">+10</span></button>
+      <button class="hole" type="button" aria-label="洞 5"><span class="mole">🐹</span><span class="pop">+10</span></button>
+      <button class="hole" type="button" aria-label="洞 6"><span class="mole">🐹</span><span class="pop">+10</span></button>
+      <button class="hole" type="button" aria-label="洞 7"><span class="mole">🐹</span><span class="pop">+10</span></button>
+      <button class="hole" type="button" aria-label="洞 8"><span class="mole">🐹</span><span class="pop">+10</span></button>
+      <button class="hole" type="button" aria-label="洞 9"><span class="mole">🐹</span><span class="pop">+10</span></button>
+    </section>
+  </main>
+
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+    <div class="dialog">
+      <h2 id="resultTitle">時間到！</h2>
+      <p id="finalScore">你的分數是 0 分</p>
+      <button id="restartBtn" type="button">重新開始</button>
+    </div>
+  </div>
+
+  <script>
+    const holes = [...document.querySelectorAll(".hole")];
+    const scoreEl = document.querySelector("#score");
+    const timeEl = document.querySelector("#time");
+    const messageEl = document.querySelector("#message");
+    const startBtn = document.querySelector("#startBtn");
+    const restartBtn = document.querySelector("#restartBtn");
+    const overlay = document.querySelector("#overlay");
+    const finalScore = document.querySelector("#finalScore");
+    const comboText = document.querySelector("#comboText");
+
+    const GAME_SECONDS = 30;
+    const MOLE_VISIBLE_MS = 1500;
+
+    let score = 0;
+    let timeLeft = GAME_SECONDS;
+    let activeHole = null;
+    let moleTimer = null;
+    let countdownTimer = null;
+    let running = false;
+    let combo = 0;
+    let audioCtx = null;
+
+    function ensureAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
+    }
+
+    function tone(frequency, duration, type = "sine", volume = 0.16, delay = 0) {
+      if (!audioCtx) return;
+
+      const start = audioCtx.currentTime + delay;
+      const oscillator = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      oscillator.type = type;
+      oscillator.frequency.setValueAtTime(frequency, start);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(volume, start + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+      oscillator.connect(gain);
+      gain.connect(audioCtx.destination);
+      oscillator.start(start);
+      oscillator.stop(start + duration + 0.03);
+    }
+
+    function playPopSound() {
+      tone(420, 0.09, "sine", 0.12);
+      tone(760, 0.12, "triangle", 0.1, 0.055);
+    }
+
+    function playHitSound() {
+      tone(150, 0.08, "square", 0.14);
+      tone(95, 0.12, "sawtooth", 0.08, 0.035);
+    }
+
+    function playOopsSound() {
+      tone(300, 0.1, "triangle", 0.11);
+      tone(190, 0.15, "triangle", 0.09, 0.08);
+    }
+
+    function playTickSound() {
+      tone(880, 0.055, "square", 0.07);
+    }
+
+    function updateHud() {
+      scoreEl.textContent = score;
+      timeEl.textContent = timeLeft;
+      timeEl.classList.toggle("danger", running && timeLeft <= 5);
+    }
+
+    function clearMole() {
+      if (moleTimer) {
+        clearTimeout(moleTimer);
+        moleTimer = null;
+      }
+
+      if (activeHole) {
+        activeHole.classList.remove("up", "hit");
+        activeHole = null;
+      }
+    }
+
+    function showMole() {
+      if (!running) return;
+
+      clearMole();
+      const nextHole = holes[Math.floor(Math.random() * holes.length)];
+      activeHole = nextHole;
+      activeHole.classList.add("up");
+      playPopSound();
+
+      moleTimer = setTimeout(() => {
+        clearMole();
+        if (running) {
+          showMole();
+        }
+      }, MOLE_VISIBLE_MS);
+    }
+
+    function startGame() {
+      ensureAudio();
+      score = 0;
+      combo = 0;
+      timeLeft = GAME_SECONDS;
+      running = true;
+      overlay.classList.remove("show");
+      startBtn.disabled = true;
+      startBtn.textContent = "遊戲中";
+      messageEl.textContent = "點到地鼠 +10，點到空洞 -5！";
+      updateHud();
+      showMole();
+
+      countdownTimer = setInterval(() => {
+        timeLeft -= 1;
+        updateHud();
+
+        if (timeLeft <= 5 && timeLeft > 0) {
+          playTickSound();
+        }
+
+        if (timeLeft <= 0) {
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function endGame() {
+      running = false;
+      combo = 0;
+      clearInterval(countdownTimer);
+      countdownTimer = null;
+      clearMole();
+      updateHud();
+      startBtn.disabled = false;
+      startBtn.textContent = "再玩一次";
+      messageEl.textContent = "時間到！按按鈕再挑戰一次。";
+      finalScore.textContent = `你的分數是 ${score} 分`;
+      overlay.classList.add("show");
+    }
+
+    function flashScore(hole, text, isBad = false) {
+      const pop = hole.querySelector(".pop");
+      pop.textContent = text;
+      pop.classList.toggle("bad", isBad);
+      hole.classList.remove("show-score");
+      void hole.offsetWidth;
+      hole.classList.add("show-score");
+      setTimeout(() => hole.classList.remove("show-score"), 560);
+    }
+
+    function centerOf(element) {
+      const rect = element.getBoundingClientRect();
+      return {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2
+      };
+    }
+
+    function burstParticles(hole, strong = false) {
+      const center = centerOf(hole);
+      const colors = ["#f3a83a", "#f87575", "#86b96f", "#ffffff", "#ffd982"];
+      const count = strong ? 24 : 14;
+
+      for (let i = 0; i < count; i += 1) {
+        const particle = document.createElement("span");
+        const angle = (Math.PI * 2 * i) / count + Math.random() * 0.45;
+        const distance = strong ? 96 + Math.random() * 42 : 58 + Math.random() * 30;
+        particle.className = "particle";
+        particle.style.background = colors[i % colors.length];
+        particle.style.left = `${center.x}px`;
+        particle.style.top = `${center.y}px`;
+        particle.style.setProperty("--dx", `${Math.cos(angle) * distance}px`);
+        particle.style.setProperty("--dy", `${Math.sin(angle) * distance - 28}px`);
+        document.body.appendChild(particle);
+        particle.addEventListener("animationend", () => particle.remove(), { once: true });
+      }
+    }
+
+    function comboBurst() {
+      const gameRect = document.querySelector(".game").getBoundingClientRect();
+      const icons = ["✦", "♡", "✿", "☆", "きら"];
+
+      for (let i = 0; i < 12; i += 1) {
+        const spark = document.createElement("span");
+        spark.className = "spark";
+        spark.textContent = icons[i % icons.length];
+        spark.style.left = `${gameRect.left + gameRect.width / 2}px`;
+        spark.style.top = `${gameRect.top + 116}px`;
+        spark.style.color = i % 2 ? "#e64b45" : "#f3a83a";
+        spark.style.setProperty("--dx", `${-140 + Math.random() * 280}px`);
+        spark.style.setProperty("--dy", `${-80 + Math.random() * 120}px`);
+        document.body.appendChild(spark);
+        spark.addEventListener("animationend", () => spark.remove(), { once: true });
+      }
+    }
+
+    function showCombo() {
+      comboText.textContent = `COMBO ×${combo}!`;
+      comboText.classList.remove("show");
+      void comboText.offsetWidth;
+      comboText.classList.add("show");
+      comboBurst();
+    }
+
+    function flyMoleFrom(hole) {
+      const center = centerOf(hole);
+      const flying = document.createElement("span");
+      flying.className = "flying-mole";
+      flying.textContent = "🐹";
+      flying.style.left = `${center.x}px`;
+      flying.style.top = `${center.y - 20}px`;
+      flying.style.setProperty("--dx", `${-60 + Math.random() * 120}px`);
+      flying.style.setProperty("--dy", `${-150 - Math.random() * 85}px`);
+      document.body.appendChild(flying);
+      flying.addEventListener("animationend", () => flying.remove(), { once: true });
+    }
+
+    function shakeScreen() {
+      document.body.classList.remove("shake");
+      void document.body.offsetWidth;
+      document.body.classList.add("shake");
+      setTimeout(() => document.body.classList.remove("shake"), 260);
+    }
+
+    holes.forEach((hole) => {
+      hole.addEventListener("click", () => {
+        if (!running) return;
+        ensureAudio();
+
+        if (hole === activeHole && hole.classList.contains("up")) {
+          score += 10;
+          combo += 1;
+          hole.classList.add("hit");
+          playHitSound();
+          flashScore(hole, "+10");
+          burstParticles(hole, combo >= 3);
+          flyMoleFrom(hole);
+          updateHud();
+
+          if (combo >= 3) {
+            showCombo();
+          }
+
+          clearMole();
+          setTimeout(showMole, 180);
+          return;
+        }
+
+        score -= 5;
+        combo = 0;
+        playOopsSound();
+        shakeScreen();
+        hole.classList.remove("miss-flash");
+        void hole.offsetWidth;
+        hole.classList.add("miss-flash");
+        flashScore(hole, "-5", true);
+        updateHud();
+      });
+    });
+
+    startBtn.addEventListener("click", startGame);
+    restartBtn.addEventListener("click", startGame);
+    updateHud();
+  </script>
+</body>
+</html>
